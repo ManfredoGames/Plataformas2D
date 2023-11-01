@@ -12,6 +12,7 @@ public class PlayerScript : MonoBehaviour
     
     [SerializeField] private Rigidbody2D myRigidbody;
     [SerializeField] private Transform groundCheck;
+    [SerializeField] private Transform cameraChanging;
     [SerializeField] private LayerMask groundLayer;
 
     // Start is called before the first frame update
