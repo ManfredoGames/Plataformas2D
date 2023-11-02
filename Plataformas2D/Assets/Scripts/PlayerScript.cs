@@ -9,11 +9,20 @@ public class PlayerScript : MonoBehaviour
     public float jumpingPower = 32f;
     private bool isFacingRight = true;
 
+    private float coyoteTime = 0.2f;
+    private float coyoteTimeCounter;
+
+    private bool canDash = true;
+    private bool isDashing;
+    public float dashPower = 24f;
+    public float dashTime = 0.2f;
+    public float dashCooldown = 1f;
+
     
-    [SerializeField] private Rigidbody2D myRigidbody;
+    private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
-    [SerializeField] private Transform cameraChanging;
     [SerializeField] private LayerMask groundLayer;
+  
 
     // Start is called before the first frame update
     void Start()
@@ -21,33 +30,64 @@ public class PlayerScript : MonoBehaviour
 
     }
 
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+
     // Update is called once per frame
     void Update()
     {
+        if (IsGrounded())
+        {
+            coyoteTimeCounter = coyoteTime;
+        }
+        else
+        {
+            coyoteTimeCounter -= Time.deltaTime;
+        }
+        if (isDashing)
+        {
+            return;
+        }
+
         horizontal = Input.GetAxisRaw("Horizontal");
+        
+        if (Input.GetButtonDown("Jump") && coyoteTimeCounter > 0f)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
+
+            
+        }
+
+        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0f)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
+            coyoteTimeCounter = 0f;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
+        {
+            StartCoroutine(Dash());
+
+        }
+
         Flip();
-        if (Input.GetButtonDown("Jump") && IsGrounded())
-        {
-            myRigidbody.velocity = new Vector2(myRigidbody.velocity.x, jumpingPower);
-
-        }
-
-        if (Input.GetButtonUp("Jump") && myRigidbody.velocity.y > 0f)
-        {
-            myRigidbody.velocity = new Vector2(myRigidbody.velocity.x, myRigidbody.velocity.y * 0.5f);
-
-        }
 
     }
 
     private bool IsGrounded()
     {
-        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+        return Physics2D.OverlapCircle(groundCheck.position, 0.45f, groundLayer);
     }
 
     private void FixedUpdate()
     {
-        myRigidbody.velocity = new Vector2(horizontal * speed, myRigidbody.velocity.y);
+        if (isDashing)
+        {
+            return;
+        }
+        rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
     }
 
     private void Flip()
@@ -59,5 +99,21 @@ public class PlayerScript : MonoBehaviour
             localScale.x *= -1f;
             transform.localScale = localScale;
         }
+    }
+
+    private IEnumerator Dash()
+    {
+        canDash = false;
+        isDashing = true;
+        float originalGravity = rb.gravityScale;
+        rb.gravityScale = 0f;
+        rb.velocity = new Vector2(transform.localScale.x * dashPower, 0f);
+
+        yield return new WaitForSeconds(dashTime);
+
+        rb.gravityScale = originalGravity;
+        isDashing = false;
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
     }
 }
