@@ -9,14 +9,14 @@ public class PlayerScript : MonoBehaviour
     public float jumpingPower = 32f;
     private bool isFacingRight = true;
 
-    private float coyoteTime = 0.2f;
+    public float coyoteTime = 0.2f;
     private float coyoteTimeCounter;
 
     private bool canDash = true;
     private bool isDashing;
-    public float dashPower = 24f;
-    public float dashTime = 0.2f;
-    public float dashCooldown = 1f;
+    public float dashPower = 40f; //revisar (creo que no va)
+    public float dashTime = 0.15f; //revisar (creo que no va)
+    public float dashCooldown = 3f; //revisar (creo que no va)
 
     
     private Rigidbody2D rb;
@@ -62,7 +62,7 @@ public class PlayerScript : MonoBehaviour
 
         if (Input.GetButtonUp("Jump") && rb.velocity.y > 0f)
         {
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.2f);
             coyoteTimeCounter = 0f;
         }
 
@@ -78,7 +78,7 @@ public class PlayerScript : MonoBehaviour
 
     private bool IsGrounded()
     {
-        return Physics2D.OverlapCircle(groundCheck.position, 0.45f, groundLayer);
+        return Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
     }
 
     private void FixedUpdate()
@@ -107,10 +107,14 @@ public class PlayerScript : MonoBehaviour
         isDashing = true;
         float originalGravity = rb.gravityScale;
         rb.gravityScale = 0f;
-        rb.velocity = new Vector2(transform.localScale.x * dashPower, 0f);
-
-        yield return new WaitForSeconds(dashTime);
-
+        rb.velocity = new Vector2(transform.localScale.x * dashPower * 0.45f, 0f);
+        yield return new WaitForSeconds(dashTime * 0.45f);
+        rb.velocity = new Vector2(transform.localScale.x * dashPower * 0.35f, 0f);
+        yield return new WaitForSeconds(dashTime * 0.35f);
+        rb.velocity = new Vector2(transform.localScale.x * dashPower * 0.25f, 0f);
+        yield return new WaitForSeconds(dashTime * 0.25f);
+        rb.velocity = new Vector2(transform.localScale.x * dashPower * 0.15f, 0f);
+        yield return new WaitForSeconds(dashTime * 0.15f);
         rb.gravityScale = originalGravity;
         isDashing = false;
         yield return new WaitForSeconds(dashCooldown);
