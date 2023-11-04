@@ -14,9 +14,9 @@ public class PlayerScript : MonoBehaviour
 
     private bool canDash = true;
     private bool isDashing;
-    public float dashPower = 40f; //revisar (creo que no va)
-    public float dashTime = 0.15f; //revisar (creo que no va)
-    public float dashCooldown = 3f; //revisar (creo que no va)
+    public float dashPower = 40f; 
+    public float dashTime = 0.15f; 
+    public float dashCooldown = 3f; 
 
     
     private Rigidbody2D rb;
