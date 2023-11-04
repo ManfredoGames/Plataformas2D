@@ -151,5 +151,7 @@ public class PlayerScript : MonoBehaviour
         isDashing = false;
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
+
+       
     }
 }
