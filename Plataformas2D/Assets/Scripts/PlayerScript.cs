@@ -15,12 +15,12 @@ public class PlayerScript : MonoBehaviour
 
     private bool canDash = true;
     private bool isDashing;
-    public float dashPower = 40f; 
+    private float dashPower = 22f; 
     public float dashTime = 0.15f; 
     public float dashCooldown = 3f; 
 
     
-    public Rigidbody2D rb;
+    private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
   
@@ -53,19 +53,19 @@ public class PlayerScript : MonoBehaviour
             return;
         }
 
-        rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+        //rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
 
-        if(isFacingRight && horizontal > 0f)
+        if(!isFacingRight && horizontal > 0f)
         {
             Flip();
+            dashPower = 22f;
         }
         else if (isFacingRight && horizontal < 0f)
         {
             Flip();
+            dashPower = -22f;
         }
 
-
-        Flip();
 
     }
     public void Jump(InputAction.CallbackContext context)
@@ -85,11 +85,12 @@ public class PlayerScript : MonoBehaviour
     }
     public void Dash(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && canDash)
         {
             StartCoroutine(Dash());
-        }
             
+        }
+        
     }
 
     public void Move(InputAction.CallbackContext context)
@@ -117,12 +118,18 @@ public class PlayerScript : MonoBehaviour
 
     private void Flip()
     {
-        if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
+        if (isFacingRight)
         {
+            Vector3 rotator = new Vector3(transform.rotation.x, 180f, transform.rotation.z);
+            transform.rotation = Quaternion.Euler(rotator);
             isFacingRight = !isFacingRight;
-            Vector3 localScale = transform.localScale;
-            localScale.x *= -1f;
-            transform.localScale = localScale;
+
+        }
+        else
+        {
+            Vector3 rotator = new Vector3(transform.rotation.x, 0f, transform.rotation.z);
+            transform.rotation = Quaternion.Euler(rotator);
+            isFacingRight = !isFacingRight;
         }
     }
 

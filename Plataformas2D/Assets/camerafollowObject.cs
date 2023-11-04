@@ -18,9 +18,9 @@ public class camerafollowObject : MonoBehaviour
 
     private void Awake()
     {
-        _player = _playerTransform.gameObject.GetComponent<PlayerScript>();
+        //_player = _playerTransform.gameObject.GetComponent<PlayerScript>();
 
-        _isFacingRight = _player.IsFacingRight;
+        //_isFacingRight = _player.IsFacingRight;
     }
     void Update()
     {
