@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerScript : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class PlayerScript : MonoBehaviour
     public float dashCooldown = 3f; 
 
     
-    private Rigidbody2D rb;
+    public Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
   
@@ -46,40 +47,64 @@ public class PlayerScript : MonoBehaviour
         {
             coyoteTimeCounter -= Time.deltaTime;
         }
+
         if (isDashing)
         {
             return;
         }
 
-        horizontal = Input.GetAxisRaw("Horizontal");
-        
-        if (Input.GetButtonDown("Jump") && coyoteTimeCounter > 0f)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
+        rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
 
-            
+        if(isFacingRight && horizontal > 0f)
+        {
+            Flip();
+        }
+        else if (isFacingRight && horizontal < 0f)
+        {
+            Flip();
         }
 
-        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0f)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.2f);
-            coyoteTimeCounter = 0f;
-        }
-
-        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
-        {
-            StartCoroutine(Dash());
-
-        }
 
         Flip();
 
     }
+    public void Jump(InputAction.CallbackContext context)
+    {
+        if (context.performed && coyoteTimeCounter > 0f)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
+
+
+        }
+
+        if (context.canceled && rb.velocity.y > 0f)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.2f);
+            coyoteTimeCounter = 0f;
+        }
+    }
+    public void Dash(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            StartCoroutine(Dash());
+        }
+            
+    }
+
+    public void Move(InputAction.CallbackContext context)
+    {
+
+        horizontal = context.ReadValue<Vector2>().x;
+    }
+
 
     private bool IsGrounded()
     {
         return Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
     }
+
+   
 
     private void FixedUpdate()
     {
