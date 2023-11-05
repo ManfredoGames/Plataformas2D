@@ -64,13 +64,13 @@ public class PlayerScript : MonoBehaviour
         if(!isFacingRight && horizontal > 0f)
         {
             Flip();
-            dashPower = 22f;
+            dashPower = 42f;
             _camerafollowObject.CallTurn();
         }
         else if (isFacingRight && horizontal < 0f)
         {
             Flip();
-            dashPower = -22f;
+            dashPower = -42f;
             _camerafollowObject.CallTurn();
         }
 
