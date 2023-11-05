@@ -8,7 +8,7 @@ public class PlayerScript : MonoBehaviour
     private float horizontal;
     public float speed = 8f;
     public float jumpingPower = 32f;
-    private bool isFacingRight = true;
+    public bool isFacingRight = true;
 
     public float coyoteTime = 0.2f;
     private float coyoteTimeCounter;
@@ -23,12 +23,18 @@ public class PlayerScript : MonoBehaviour
     private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
-  
+
+    [SerializeField] private GameObject _cameraFollow;
+
+    private camerafollowObject _camerafollowObject;
+    private float _fallSpeedYDampingChangeThreshold;
 
     // Start is called before the first frame update
     void Start()
     {
+        _camerafollowObject = _cameraFollow.GetComponent<camerafollowObject>();
 
+        _fallSpeedYDampingChangeThreshold = CameraManager.instance._fallSpeedYDampingChangeThreshold;
     }
 
     private void Awake()
@@ -59,14 +65,25 @@ public class PlayerScript : MonoBehaviour
         {
             Flip();
             dashPower = 22f;
+            _camerafollowObject.CallTurn();
         }
         else if (isFacingRight && horizontal < 0f)
         {
             Flip();
             dashPower = -22f;
+            _camerafollowObject.CallTurn();
         }
 
+        if (rb.velocity.y < _fallSpeedYDampingChangeThreshold && !CameraManager.instance.IsLerpingYDamping && !CameraManager.instance.LerpedFromPlayerFalling)
+        {
+            CameraManager.instance.LerpYDamping(true);
+        }
 
+        if (rb.velocity.y >= 0f && !CameraManager.instance.IsLerpingYDamping && CameraManager.instance.LerpedFromPlayerFalling)
+        {
+            CameraManager.instance.LerpedFromPlayerFalling = false;
+            CameraManager.instance.LerpYDamping(false);
+        }
     }
     public void Jump(InputAction.CallbackContext context)
     {

@@ -773,7 +773,7 @@ GameObject:
   - component: {fileID: 1849646339}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -882,10 +882,8 @@ MonoBehaviour:
   speed: 2.5
   jumpingPower: 6
   coyoteTime: 0.02
-  dashPower: 22
   dashTime: 0.2
   dashCooldown: 0.6
-  rb: {fileID: 1849646334}
   groundCheck: {fileID: 1927253132}
   groundLayer:
     serializedVersion: 2
