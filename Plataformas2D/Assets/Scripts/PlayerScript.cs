@@ -17,14 +17,23 @@ public class PlayerScript : MonoBehaviour
     private bool isDashing;
     private float dashPower = 22f; 
     public float dashTime = 0.15f; 
-    public float dashCooldown = 3f; 
+    public float dashCooldown = 3f;
+
+    private bool isWallSliding;
+    private float wallSlidingSpeed = 2f;
 
     
     private Rigidbody2D rb;
+
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
 
+    [SerializeField] private Transform wallCheck;
+    [SerializeField] private LayerMask wallLayer;
+
     [SerializeField] private GameObject _cameraFollow;
+
+
 
     private camerafollowObject _camerafollowObject;
     private float _fallSpeedYDampingChangeThreshold;
@@ -53,6 +62,8 @@ public class PlayerScript : MonoBehaviour
         {
             coyoteTimeCounter -= Time.deltaTime;
         }
+
+        wallSlide();
 
         if (isDashing)
         {
@@ -122,7 +133,23 @@ public class PlayerScript : MonoBehaviour
         return Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
     }
 
+    private bool IsWalled()
+    {
+        return Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
+    }
    
+    private void WallSlide()
+    {
+        if (isWalled() && !IsGrounded && horizontal != 0f)
+        {
+            isWallSliding = true;
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));
+        }
+        else
+        {
+            isWallSliding = false;
+        }
+    }
 
     private void FixedUpdate()
     {
