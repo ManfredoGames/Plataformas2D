@@ -72965,9 +72965,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 330888853725948716, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
+      propertyPath: superJump
+      value: 
+      objectReference: {fileID: -2252207157451970108, guid: 3bb853ff619228d49b9711e1d5b93575, type: 3}
+    - target: {fileID: 330888853725948716, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
       propertyPath: _cameraFollow
       value: 
       objectReference: {fileID: 127105337}
+    - target: {fileID: 330888853725948716, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
+      propertyPath: superjumpPower
+      value: 28
+      objectReference: {fileID: 0}
     - target: {fileID: 330888853725948718, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
       propertyPath: m_Name
       value: Player
