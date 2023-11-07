@@ -15,14 +15,17 @@ public class PlayerScript : MonoBehaviour
 
     private bool canDash = true;
     private bool isDashing;
-    private float dashPower = 22f; 
-    public float dashTime = 0.15f; 
+    private float dashPower = 22f;
+    public float dashTime = 0.15f;
     public float dashCooldown = 3f;
 
     private bool isWallSliding;
     private float wallSlidingSpeed = 2f;
 
-    
+    public float superjumpPower = 60f;
+
+
+
     private Rigidbody2D rb;
 
     [SerializeField] private Transform groundCheck;
@@ -72,7 +75,7 @@ public class PlayerScript : MonoBehaviour
 
         //rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
 
-        if(!isFacingRight && horizontal > 0f)
+        if (!isFacingRight && horizontal > 0f)
         {
             Flip();
             dashPower = 42f;
@@ -95,6 +98,7 @@ public class PlayerScript : MonoBehaviour
             CameraManager.instance.LerpedFromPlayerFalling = false;
             CameraManager.instance.LerpYDamping(false);
         }
+
     }
     public void Jump(InputAction.CallbackContext context)
     {
@@ -111,14 +115,26 @@ public class PlayerScript : MonoBehaviour
             coyoteTimeCounter = 0f;
         }
     }
+
+
+    public void SuperJump(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, superjumpPower);
+
+            Debug.Log("saltando");
+        }
+    }
+
     public void Dash(InputAction.CallbackContext context)
     {
         if (context.performed && canDash)
         {
             StartCoroutine(Dash());
-            
+
         }
-        
+
     }
 
     public void Move(InputAction.CallbackContext context)
@@ -133,14 +149,15 @@ public class PlayerScript : MonoBehaviour
         return Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
     }
 
+
     private bool IsWalled()
     {
         return Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
     }
-   
+
     private void WallSlide()
     {
-        if (IsWalled() &&  !IsGrounded() && horizontal != 0f)
+        if (IsWalled() && !IsGrounded() && horizontal != 0f)
         {
             isWallSliding = true;
             rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));
@@ -195,7 +212,7 @@ public class PlayerScript : MonoBehaviour
         isDashing = false;
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
-
-       
     }
 }
+
+
