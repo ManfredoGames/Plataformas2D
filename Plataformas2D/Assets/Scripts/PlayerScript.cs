@@ -23,7 +23,10 @@ public class PlayerScript : MonoBehaviour
     private float wallSlidingSpeed = 2f;
 
     public float superjumpPower = 60f;
-    private bool issuperJumping;
+
+
+    [SerializeField] private InputActionReference superJump;
+    
 
 
 
@@ -99,18 +102,19 @@ public class PlayerScript : MonoBehaviour
             CameraManager.instance.LerpedFromPlayerFalling = false;
             CameraManager.instance.LerpYDamping(false);
         }
-        if (issuperJumping)
-        {
-
-            rb.AddForce (new Vector2(0, superjumpPower));
-
-            issuperJumping = false;
-        }
+ 
     }
     public void Jump(InputAction.CallbackContext context)
     {
+        //if ((superJump.action.inProgress))
+        //{
+        //    speed = 0f;
+        //}
+
+
         if (context.performed && coyoteTimeCounter > 0f)
         {
+     
             rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
 
 
@@ -126,11 +130,11 @@ public class PlayerScript : MonoBehaviour
 
     public void SuperJump(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && coyoteTimeCounter > 0f)
         {
 
-            issuperJumping = true;
             
+            rb.velocity = new Vector2(rb.velocity.x, superjumpPower);
 
             Debug.Log("saltando");
         }
