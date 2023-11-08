@@ -32,7 +32,6 @@ public class PlayerScript : MonoBehaviour
     private bool isWallSliding;
     private float wallSlidingSpeed = 2f;
 
-
     //superjump
     public float superjumpPower = 60f;
     private bool isChargingJump = false;
@@ -127,14 +126,17 @@ public class PlayerScript : MonoBehaviour
     {
         if (context.performed && coyoteTimeCounter > 0f)
         {
-     
             rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
 
-
+            if (isWallSliding)
+            {
+                isWallSliding = false;
+            }
         }
         else if (context.performed && isWallSliding)
         {
             rb.velocity = new Vector2(-transform.right.x * jumpingPower, jumpingPower);
+            isWallSliding = false;
         }
 
         if (context.canceled && rb.velocity.y > 0f)
@@ -156,7 +158,7 @@ public class PlayerScript : MonoBehaviour
             isChargingJump = false;
         }
 
-        if (context.performed && coyoteTimeCounter > 0f)
+        if (context.performed && coyoteTimeCounter > 0f && !isWallSliding)
         {
             rb.velocity = new Vector2(rb.velocity.x, superjumpPower);
             isChargingJump = false;
@@ -171,12 +173,22 @@ public class PlayerScript : MonoBehaviour
         {
             StartCoroutine(Dash());
         }
+
+        if (isWallSliding)
+        {
+            isWallSliding = false;
+        }
     }
 
     //move
     public void Move(InputAction.CallbackContext context)
     {
         horizontal = context.ReadValue<Vector2>().x;
+
+        if (isWallSliding)
+        {
+            isWallSliding = false;
+        }
     }
 
     //grounded
@@ -209,14 +221,18 @@ public class PlayerScript : MonoBehaviour
 
     private void WallSlide()
     {
-        if (IsWalled() && !IsGrounded() && horizontal != 0f)
+        if (IsWalled() && !IsGrounded()/* && horizontal != 0f*/)
         {
             isWallSliding = true;
-            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));
         }
         else
         {
             isWallSliding = false;
+        }
+
+        if (isWallSliding)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));
         }
     }
 
@@ -227,6 +243,7 @@ public class PlayerScript : MonoBehaviour
         {
             return;
         }
+
         rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
     }
    
