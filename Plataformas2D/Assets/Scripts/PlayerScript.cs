@@ -135,7 +135,7 @@ public class PlayerScript : MonoBehaviour
         }
         else if (context.performed && isWallSliding)
         {
-            rb.velocity = new Vector2(-transform.right.x * jumpingPower, jumpingPower);
+            rb.velocity = new Vector2(-transform.localScale.x * jumpingPower * 100f, jumpingPower);
             isWallSliding = false;
         }
 
@@ -210,7 +210,7 @@ public class PlayerScript : MonoBehaviour
     //walled
     private bool IsWalled()
     {
-        float wallCheckDistance = 0.3f;
+        float wallCheckDistance = 0.5f;
         Vector3 raycastOrigin = transform.position + new Vector3(0, 0.3f, 0);
         RaycastHit2D hitWall = Physics2D.Raycast(raycastOrigin, transform.right, wallCheckDistance, wallLayer | cornerLayer);
 
@@ -221,7 +221,7 @@ public class PlayerScript : MonoBehaviour
 
     private void WallSlide()
     {
-        if (IsWalled() && !IsGrounded()/* && horizontal != 0f*/)
+        if (IsWalled() && !IsGrounded())
         {
             isWallSliding = true;
         }
