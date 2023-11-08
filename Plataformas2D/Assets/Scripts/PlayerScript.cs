@@ -35,16 +35,13 @@ public class PlayerScript : MonoBehaviour
 
     //superjump
     public float superjumpPower = 60f;
-    [SerializeField] private InputActionReference superJump;
+    private bool isChargingJump = false;
 
     //groundcheck & wallcheck
 
-    [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
-
-    [SerializeField] private Transform wallCheck;
     [SerializeField] private LayerMask wallLayer;
-
+    [SerializeField] private LayerMask cornerLayer;
     //camera
 
     [SerializeField] private GameObject _cameraFollow;
@@ -72,7 +69,7 @@ public class PlayerScript : MonoBehaviour
         {
             coyoteTimeCounter = coyoteTime;
         }
-        else
+        else if (coyoteTimeCounter > 0)
         {
             coyoteTimeCounter -= Time.deltaTime;
         }
@@ -87,15 +84,30 @@ public class PlayerScript : MonoBehaviour
         if (!isFacingRight && horizontal > 0f)
         {
             Flip();
-            dashPower = 42f;
+            if (IsWalled())
+            {
+                dashPower = -42f;
+            }
+            else
+            {
+                dashPower = 42f;
+            }
             _camerafollowObject.CallTurn();
         }
         else if (isFacingRight && horizontal < 0f)
         {
             Flip();
-            dashPower = -42f;
+            if (IsWalled())
+            {
+                dashPower = 42f;
+            }
+            else
+            {
+                dashPower = -42f;
+            }
             _camerafollowObject.CallTurn();
         }
+
 
         if (rb.velocity.y < _fallSpeedYDampingChangeThreshold && !CameraManager.instance.IsLerpingYDamping && !CameraManager.instance.LerpedFromPlayerFalling)
         {
@@ -120,6 +132,10 @@ public class PlayerScript : MonoBehaviour
 
 
         }
+        else if (context.performed && isWallSliding)
+        {
+            rb.velocity = new Vector2(-transform.right.x * jumpingPower, jumpingPower);
+        }
 
         if (context.canceled && rb.velocity.y > 0f)
         {
@@ -131,15 +147,19 @@ public class PlayerScript : MonoBehaviour
     //superjump
     public void SuperJump(InputAction.CallbackContext context)
     {
+        if (context.started)
+        {
+            isChargingJump = true;
+        }
+        else if (context.canceled)
+        {
+            isChargingJump = false;
+        }
+
         if (context.performed && coyoteTimeCounter > 0f)
         {
-            if ((superJump.action.triggered))
-            {
-                speed = 0f;
-            }
-
             rb.velocity = new Vector2(rb.velocity.x, superjumpPower);
-
+            isChargingJump = false;
             Debug.Log("saltando");
         }
     }
@@ -150,29 +170,43 @@ public class PlayerScript : MonoBehaviour
         if (context.performed && canDash)
         {
             StartCoroutine(Dash());
-
         }
-
     }
 
     //move
     public void Move(InputAction.CallbackContext context)
     {
-
         horizontal = context.ReadValue<Vector2>().x;
     }
 
     //grounded
     private bool IsGrounded()
     {
-        return Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
+        float extraWidth = 0.3f; //tamano personaje / 2
+        float groundCheckDistance = 1.2f;
+        RaycastHit2D middleHit = Physics2D.Raycast(transform.position, -transform.up, groundCheckDistance, groundLayer | cornerLayer);
+        RaycastHit2D leftHit = Physics2D.Raycast(transform.position - new Vector3(extraWidth, 0, 0), -transform.up, groundCheckDistance, groundLayer | cornerLayer);
+        RaycastHit2D rightHit = Physics2D.Raycast(transform.position + new Vector3(extraWidth, 0, 0), -transform.up, groundCheckDistance, groundLayer | cornerLayer);
+
+        Debug.DrawRay(transform.position, -transform.up * groundCheckDistance, Color.red);
+        Debug.DrawRay(transform.position - new Vector3(extraWidth, 0, 0), -transform.up * groundCheckDistance, Color.red);
+        Debug.DrawRay(transform.position + new Vector3(extraWidth, 0, 0), -transform.up * groundCheckDistance, Color.red);
+
+        return middleHit.collider != null || leftHit.collider != null || rightHit.collider != null;
     }
 
     //walled
     private bool IsWalled()
     {
-        return Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
+        float wallCheckDistance = 0.3f;
+        Vector3 raycastOrigin = transform.position + new Vector3(0, 0.3f, 0);
+        RaycastHit2D hitWall = Physics2D.Raycast(raycastOrigin, transform.right, wallCheckDistance, wallLayer | cornerLayer);
+
+        Debug.DrawRay(raycastOrigin, transform.right * wallCheckDistance, Color.red);
+
+        return hitWall.collider != null;
     }
+
     private void WallSlide()
     {
         if (IsWalled() && !IsGrounded() && horizontal != 0f)
@@ -189,7 +223,7 @@ public class PlayerScript : MonoBehaviour
     private void FixedUpdate()
     {
         //dash
-        if (isDashing)
+        if (isDashing || isChargingJump)
         {
             return;
         }
@@ -235,5 +269,3 @@ public class PlayerScript : MonoBehaviour
         canDash = true;
     }
 }
-
-
