@@ -5,13 +5,21 @@ using UnityEngine.InputSystem;
 
 public class PlayerScript : MonoBehaviour
 {
+    private Rigidbody2D rb;
+
+    //movimiento
+
     private float horizontal;
     public float speed = 8f;
     public float jumpingPower = 32f;
     public bool isFacingRight = true;
 
+    //coyotetime
+
     public float coyoteTime = 0.2f;
     private float coyoteTimeCounter;
+
+    //dash
 
     private bool canDash = true;
     private bool isDashing;
@@ -19,18 +27,17 @@ public class PlayerScript : MonoBehaviour
     public float dashTime = 0.15f;
     public float dashCooldown = 3f;
 
+    //wallslide
+
     private bool isWallSliding;
     private float wallSlidingSpeed = 2f;
 
+
+    //superjump
     public float superjumpPower = 60f;
-
-
     [SerializeField] private InputActionReference superJump;
-    
 
-
-
-    private Rigidbody2D rb;
+    //groundcheck & wallcheck
 
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
@@ -38,14 +45,12 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private Transform wallCheck;
     [SerializeField] private LayerMask wallLayer;
 
+    //camera
+
     [SerializeField] private GameObject _cameraFollow;
-
-
-
     private camerafollowObject _camerafollowObject;
     private float _fallSpeedYDampingChangeThreshold;
 
-    // Start is called before the first frame update
     void Start()
     {
         _camerafollowObject = _cameraFollow.GetComponent<camerafollowObject>();
@@ -61,6 +66,8 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //general if actions
+
         if (IsGrounded())
         {
             coyoteTimeCounter = coyoteTime;
@@ -76,8 +83,6 @@ public class PlayerScript : MonoBehaviour
         {
             return;
         }
-
-        //rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
 
         if (!isFacingRight && horizontal > 0f)
         {
@@ -104,14 +109,10 @@ public class PlayerScript : MonoBehaviour
         }
  
     }
+
+    //jump
     public void Jump(InputAction.CallbackContext context)
     {
-        //if ((superJump.action.inProgress))
-        //{
-        //    speed = 0f;
-        //}
-
-
         if (context.performed && coyoteTimeCounter > 0f)
         {
      
@@ -127,19 +128,23 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-
+    //superjump
     public void SuperJump(InputAction.CallbackContext context)
     {
         if (context.performed && coyoteTimeCounter > 0f)
         {
+            if ((superJump.action.triggered))
+            {
+                speed = 0f;
+            }
 
-            
             rb.velocity = new Vector2(rb.velocity.x, superjumpPower);
 
             Debug.Log("saltando");
         }
     }
 
+    //dash
     public void Dash(InputAction.CallbackContext context)
     {
         if (context.performed && canDash)
@@ -150,24 +155,24 @@ public class PlayerScript : MonoBehaviour
 
     }
 
+    //move
     public void Move(InputAction.CallbackContext context)
     {
 
         horizontal = context.ReadValue<Vector2>().x;
     }
 
-
+    //grounded
     private bool IsGrounded()
     {
         return Physics2D.OverlapCircle(groundCheck.position, 0.1f, groundLayer);
     }
 
-
+    //walled
     private bool IsWalled()
     {
         return Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
     }
-
     private void WallSlide()
     {
         if (IsWalled() && !IsGrounded() && horizontal != 0f)
@@ -183,13 +188,15 @@ public class PlayerScript : MonoBehaviour
 
     private void FixedUpdate()
     {
+        //dash
         if (isDashing)
         {
             return;
         }
         rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
     }
-
+   
+    //flip
     private void Flip()
     {
         if (isFacingRight)
@@ -207,6 +214,7 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
+    //dash
     private IEnumerator Dash()
     {
         canDash = false;

@@ -72295,17 +72295,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!114 &1354233112 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 330888853725948716, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-  m_PrefabInstance: {fileID: 330888854385814182}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 566514d635bf63c4caab546e1be1d1a2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1692818607
 GameObject:
   m_ObjectHideFlags: 0
@@ -72921,10 +72910,6 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 330888853725948712, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 330888853725948712, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -72965,60 +72950,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 330888853725948716, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-      propertyPath: superJump
-      value: 
-      objectReference: {fileID: -2252207157451970108, guid: 3bb853ff619228d49b9711e1d5b93575, type: 3}
-    - target: {fileID: 330888853725948716, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
       propertyPath: _cameraFollow
       value: 
       objectReference: {fileID: 127105337}
-    - target: {fileID: 330888853725948716, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-      propertyPath: superjumpPower
-      value: 28
-      objectReference: {fileID: 0}
     - target: {fileID: 330888853725948718, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 330888853725948719, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-      propertyPath: m_ActionEvents.Array.size
-      value: 16
-      objectReference: {fileID: 0}
-    - target: {fileID: 330888853725948719, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-      propertyPath: m_ActionEvents.Array.data[15].m_ActionId
-      value: db4bff9f-07ca-40e3-81ff-55d9e34c372f
-      objectReference: {fileID: 0}
-    - target: {fileID: 330888853725948719, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-      propertyPath: m_ActionEvents.Array.data[15].m_ActionName
-      value: Player/Superjump[/DualShock4GamepadHID/leftTrigger,/Keyboard/s]
-      objectReference: {fileID: 0}
-    - target: {fileID: 330888853725948719, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 330888853725948719, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 330888853725948719, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 1354233112}
-    - target: {fileID: 330888853725948719, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 330888853725948719, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SuperJump
-      objectReference: {fileID: 0}
-    - target: {fileID: 330888853725948719, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: PlayerScript, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 330888853725948719, guid: 0c68dd2efce03854fa17f4e47185f0e1, type: 3}
-      propertyPath: m_ActionEvents.Array.data[15].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_AddedGameObjects: []
