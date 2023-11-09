@@ -58,6 +58,15 @@
                     "processors": "",
                     "interactions": "Hold(duration=2.5,pressPoint=1.401298E-45)",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "InteractionButton",
+                    "type": "Button",
+                    "id": "0e439fc1-f26b-4518-8a8d-6360521c03e3",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -344,6 +353,28 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Superjump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "555a5991-17c5-4c71-9fb2-f1df9fd45efc",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "InteractionButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "26aad9d8-56e7-482e-b92a-a9822d790e49",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "InteractionButton",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
