@@ -15,7 +15,7 @@ public class DoorInteraction : MonoBehaviour
     {
         if (context.performed && isPlayerInRange)
         {
-            SceneManager.LoadScene(sceneToLoad);
+            LevelLoaderScript.instance.LevelLoader(sceneToLoad);
         }
     }
 
