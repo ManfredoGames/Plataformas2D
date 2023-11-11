@@ -23,7 +23,7 @@ public class PlayerScript : MonoBehaviour
 
     private bool canDash = true;
     private bool isDashing;
-    private float dashPower = 22f;
+    private float dashPower = 30f;
     public float dashTime = 0.15f;
     public float dashCooldown = 3f;
 
@@ -85,11 +85,11 @@ public class PlayerScript : MonoBehaviour
             Flip();
             if (IsWalled())
             {
-                dashPower = -42f;
+                dashPower = -30f;
             }
             else
             {
-                dashPower = 42f;
+                dashPower = 30f;
             }
             _camerafollowObject.CallTurn();
         }
@@ -98,11 +98,11 @@ public class PlayerScript : MonoBehaviour
             Flip();
             if (IsWalled())
             {
-                dashPower = 42f;
+                dashPower = 30f;
             }
             else
             {
-                dashPower = -42f;
+                dashPower = -30f;
             }
             _camerafollowObject.CallTurn();
         }
@@ -266,7 +266,7 @@ public class PlayerScript : MonoBehaviour
     }
 
     //dash
-    private IEnumerator Dash()
+    private IEnumerator Dash1()
     {
         canDash = false;
         isDashing = true;
@@ -285,4 +285,30 @@ public class PlayerScript : MonoBehaviour
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
+
+    private IEnumerator Dash()
+    {
+        canDash = false;
+        isDashing = true;
+        float originalGravity = rb.gravityScale;
+        rb.gravityScale = 0f;
+
+        float elapsedTime = 0;
+        float dashDuration = dashTime * 1.5f;
+
+        while (elapsedTime < dashDuration)
+        {
+            float t = elapsedTime / dashDuration;
+            float currentDashSpeed = Mathf.Lerp(dashPower, 0, t);
+            rb.velocity = new Vector2(transform.localScale.x * currentDashSpeed, 0f);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        rb.gravityScale = originalGravity;
+        isDashing = false;
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
+    }
+
 }
