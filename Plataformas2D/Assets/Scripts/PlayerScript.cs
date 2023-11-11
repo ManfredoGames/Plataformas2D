@@ -7,12 +7,17 @@ public class PlayerScript : MonoBehaviour
 {
     public Rigidbody2D rb;
 
+
     //movimiento
 
     private float horizontal;
     public float speed = 8f;
     public float jumpingPower = 32f;
     public bool isFacingRight = true;
+    private float maxvelocity = -45f;
+    public float fallMultiplier = 0.2f;
+    bool isJumping;
+    float gravityFalling;
 
     //coyotetime
 
@@ -41,6 +46,7 @@ public class PlayerScript : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private LayerMask cornerLayer;
+    
     //camera
 
     [SerializeField] private GameObject _cameraFollow;
@@ -49,6 +55,7 @@ public class PlayerScript : MonoBehaviour
 
     void Start()
     {
+        gravityFalling = rb.gravityScale;
         _camerafollowObject = _cameraFollow.GetComponent<camerafollowObject>();
 
         _fallSpeedYDampingChangeThreshold = CameraManager.instance._fallSpeedYDampingChangeThreshold;
@@ -63,6 +70,16 @@ public class PlayerScript : MonoBehaviour
     void Update()
     {
         //general if actions
+
+        if (coyoteTimeCounter < 0f || IsWalled())
+        {
+            isJumping = false;
+        }
+
+        if (rb.velocity.y < maxvelocity)
+        { 
+            rb.velocity = new Vector2(rb.velocity.x, maxvelocity);
+        }
 
         if (IsGrounded())
         {
@@ -126,15 +143,18 @@ public class PlayerScript : MonoBehaviour
     {
         if (context.performed && coyoteTimeCounter > 0f)
         {
+            isJumping = true;
             rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
 
             if (isWallSliding)
             {
                 isWallSliding = false;
             }
+  
         }
         else if (context.performed && isWallSliding)
         {
+            isJumping = true;
             rb.velocity = new Vector2(-transform.localScale.x * jumpingPower * 100f, jumpingPower);
             isWallSliding = false;
         }
@@ -244,7 +264,18 @@ public class PlayerScript : MonoBehaviour
             return;
         }
 
+        if (rb.velocity.y < 0)
+        {
+            rb.velocity -= new Vector2(rb.velocity.x, rb.gravityScale * -2f * Time.fixedDeltaTime);
+        }
+        else
+        {
+            rb.gravityScale = gravityFalling;
+
+        }
+
         rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+
     }
    
     //flip
@@ -268,6 +299,7 @@ public class PlayerScript : MonoBehaviour
     //dash
     private IEnumerator Dash1()
     {
+        isJumping = false;
         canDash = false;
         isDashing = true;
         float originalGravity = rb.gravityScale;
@@ -288,6 +320,8 @@ public class PlayerScript : MonoBehaviour
 
     private IEnumerator Dash()
     {
+
+        isJumping = false;
         canDash = false;
         isDashing = true;
         float originalGravity = rb.gravityScale;
@@ -309,6 +343,7 @@ public class PlayerScript : MonoBehaviour
         isDashing = false;
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
+        
     }
 
 }
