@@ -46,7 +46,7 @@ public class PlayerScript : MonoBehaviour
 
     private bool canDash = true;
     private bool isDashing;
-    private float dashPower = 30f;
+    private float dashPower = 25.0f;
     public float dashTime = 0.15f;
     public float dashCooldown = 3f;
 
@@ -396,7 +396,7 @@ public class PlayerScript : MonoBehaviour
         rb.gravityScale = 0f;
 
         float elapsedTime = 0;
-        float dashDuration = dashTime * 1.5f;
+        float dashDuration = dashTime * 2.0f;
 
         float direction = isFacingRight ? 1 : -1;
         if (IsWalled())
