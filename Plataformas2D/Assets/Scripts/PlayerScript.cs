@@ -166,13 +166,11 @@ public class PlayerScript : MonoBehaviour
         if (horizontal > 0f && !isFacingRight)
         {
             Flip();
-            dashPower = IsWalled() ? -30f : 30f;
             _camerafollowObject.CallTurn();
         }
         else if (horizontal < 0f && isFacingRight)
         {
             Flip();
-            dashPower = IsWalled() ? 30f : -30f;
             _camerafollowObject.CallTurn();
         }
 
@@ -391,7 +389,6 @@ public class PlayerScript : MonoBehaviour
 
     private IEnumerator Dash()
     {
-
         isJumping = false;
         canDash = false;
         isDashing = true;
@@ -401,11 +398,18 @@ public class PlayerScript : MonoBehaviour
         float elapsedTime = 0;
         float dashDuration = dashTime * 1.5f;
 
+        float direction = isFacingRight ? 1 : -1;
+        if (IsWalled())
+        {
+            direction *= -1;
+            Flip();
+        }
+
         while (elapsedTime < dashDuration)
         {
             float t = elapsedTime / dashDuration;
             float currentDashSpeed = Mathf.Lerp(dashPower, 0, t);
-            rb.velocity = new Vector2(transform.localScale.x * currentDashSpeed, 0f);
+            rb.velocity = new Vector2(direction * currentDashSpeed, 0f);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
@@ -414,7 +418,7 @@ public class PlayerScript : MonoBehaviour
         isDashing = false;
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
-        
     }
+
 
 }
