@@ -54,6 +54,7 @@ public class PlayerScript : MonoBehaviour
 
     private bool isWallSliding;
     private float wallSlidingSpeed = 2f;
+    private bool canControl = true;
 
     //superjump
     public float superjumpPower = 60f;
@@ -191,6 +192,27 @@ public class PlayerScript : MonoBehaviour
     }
 
     //jump
+    private IEnumerator WallJumpCoroutine()
+    {
+        float jumpTime = 0.1f;
+        float timeElapsed = 0;
+
+        float direction = isFacingRight ? -1 : 1;
+
+        canControl = false;
+
+        while (timeElapsed < jumpTime)
+        {
+            rb.velocity = new Vector2(12.0f * direction, 12.0f);
+
+            timeElapsed += Time.deltaTime;
+
+            yield return null;
+        }
+
+        canControl = true;
+    }
+
     public void Jump(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -199,10 +221,9 @@ public class PlayerScript : MonoBehaviour
             {
                 isJumping = true;
 
-                if (isWallSliding)
+                if (wallJumpCoyoteTimeCounter > 0f)
                 {
-                    Vector2 jumpForce = new Vector2(isFacingRight ? -1 : 1, 1).normalized * jumpingPower;
-                    rb.AddForce(jumpForce, ForceMode2D.Impulse);
+                    StartCoroutine(WallJumpCoroutine());
                     isWallSliding = false;
                 }
                 else
@@ -211,19 +232,11 @@ public class PlayerScript : MonoBehaviour
                 }
             }
         }
-
-        if (context.canceled && rb.velocity.y > 0f)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.2f);
-            coyoteTimeCounter = 0f;
-            wallJumpCoyoteTimeCounter = 0f;
-        }
     }
 
 
-
-//superjump
-public void SuperJump(InputAction.CallbackContext context)
+    //superjump
+    public void SuperJump(InputAction.CallbackContext context)
     {
         if (context.started)
         {
@@ -266,7 +279,7 @@ public void SuperJump(InputAction.CallbackContext context)
     //grounded
     private bool IsGrounded()
     {
-        float extraWidth = 0.3f; //tamano personaje / 2
+        float extraWidth = 0.2f; //tamano personaje / 2
         float groundCheckDistance = 1.2f;
         RaycastHit2D middleHit = Physics2D.Raycast(transform.position, -transform.up, groundCheckDistance, groundLayer | cornerLayer);
         RaycastHit2D leftHit = Physics2D.Raycast(transform.position - new Vector3(extraWidth, 0, 0), -transform.up, groundCheckDistance, groundLayer | cornerLayer);
@@ -283,7 +296,7 @@ public void SuperJump(InputAction.CallbackContext context)
     private bool IsWalled()
     {
         float wallCheckDistance = 0.5f;
-        Vector3 raycastOrigin = transform.position + new Vector3(0, 0.3f, 0);
+        Vector3 raycastOrigin = transform.position + new Vector3(0, 0.15f, 0);
         RaycastHit2D hitWall = Physics2D.Raycast(raycastOrigin, transform.right, wallCheckDistance, wallLayer | cornerLayer);
 
         Debug.DrawRay(raycastOrigin, transform.right * wallCheckDistance, Color.red);
@@ -316,7 +329,7 @@ public void SuperJump(InputAction.CallbackContext context)
     private void FixedUpdate()
     {
         //dash
-        if (isDashing || isChargingJump)
+        if (isDashing || isChargingJump || !canControl)
         {
             return;
         }
