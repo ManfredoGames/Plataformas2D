@@ -7,6 +7,22 @@ public class PlayerScript : MonoBehaviour
 {
     public Rigidbody2D rb;
 
+    public struct InputActionTime
+    {
+        public InputAction.CallbackContext context;
+        public float time;
+        public string action;
+
+        public InputActionTime(InputAction.CallbackContext context, float time, string action)
+        {
+            this.context = context;
+            this.time = time;
+            this.action = action;
+        }
+    }
+
+    private List<InputActionTime> inputBuffer = new List<InputActionTime>();
+    private float bufferTime = 0.6f;
 
     //movimiento
 
@@ -16,13 +32,15 @@ public class PlayerScript : MonoBehaviour
     public bool isFacingRight = true;
     private float maxvelocity = -45f;
     public float fallMultiplier = 0.2f;
-    bool isJumping;
-    float gravityFalling;
+    private bool isJumping;
+    private float gravityFalling;
 
     //coyotetime
 
     public float coyoteTime = 0.2f;
     private float coyoteTimeCounter;
+    public float wallJumpCoyoteTime = 0.2f;
+    private float wallJumpCoyoteTimeCounter;
 
     //dash
 
@@ -66,12 +84,49 @@ public class PlayerScript : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
+    public void BufferJump(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            inputBuffer.Add(new InputActionTime(context, Time.time, "Jump"));
+        }
+    }
+
+    public void BufferDash(InputAction.CallbackContext context)
+    {
+        if (context.performed && canDash)
+        {
+            inputBuffer.Add(new InputActionTime(context, Time.time, "Dash"));
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
         //general if actions
 
-        if (coyoteTimeCounter < 0f || IsWalled())
+        for (int i = inputBuffer.Count - 1; i >= 0; i--)
+        {
+            if (Time.time - inputBuffer[i].time <= bufferTime)
+            {
+                switch (inputBuffer[i].action)
+                {
+                    case "Jump":
+                        Jump(inputBuffer[i].context);
+                        break;
+                    case "Dash":
+                        Dash(inputBuffer[i].context);
+                        break;
+                }
+                inputBuffer.RemoveAt(i);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (coyoteTimeCounter < 0f || wallJumpCoyoteTimeCounter < 0f)
         {
             isJumping = false;
         }
@@ -79,6 +134,16 @@ public class PlayerScript : MonoBehaviour
         if (rb.velocity.y < maxvelocity)
         { 
             rb.velocity = new Vector2(rb.velocity.x, maxvelocity);
+        }
+
+        if (!isWallSliding)
+        {
+            wallJumpCoyoteTimeCounter -= Time.deltaTime;
+        }
+
+        if (isWallSliding)
+        {
+            wallJumpCoyoteTimeCounter = wallJumpCoyoteTime;
         }
 
         if (IsGrounded())
@@ -97,32 +162,19 @@ public class PlayerScript : MonoBehaviour
             return;
         }
 
-        if (!isFacingRight && horizontal > 0f)
+        if (horizontal > 0f && !isFacingRight)
         {
             Flip();
-            if (IsWalled())
-            {
-                dashPower = -30f;
-            }
-            else
-            {
-                dashPower = 30f;
-            }
+            dashPower = IsWalled() ? -30f : 30f;
             _camerafollowObject.CallTurn();
         }
-        else if (isFacingRight && horizontal < 0f)
+        else if (horizontal < 0f && isFacingRight)
         {
             Flip();
-            if (IsWalled())
-            {
-                dashPower = 30f;
-            }
-            else
-            {
-                dashPower = -30f;
-            }
+            dashPower = IsWalled() ? 30f : -30f;
             _camerafollowObject.CallTurn();
         }
+
 
 
         if (rb.velocity.y < _fallSpeedYDampingChangeThreshold && !CameraManager.instance.IsLerpingYDamping && !CameraManager.instance.LerpedFromPlayerFalling)
@@ -141,37 +193,42 @@ public class PlayerScript : MonoBehaviour
     //jump
     public void Jump(InputAction.CallbackContext context)
     {
-        if (context.performed && coyoteTimeCounter > 0f)
+        if (context.performed)
         {
-            isJumping = true;
-            rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
-
-            if (isWallSliding)
+            if (coyoteTimeCounter > 0f || (isWallSliding && wallJumpCoyoteTimeCounter > 0f))
             {
-                isWallSliding = false;
+                isJumping = true;
+
+                if (isWallSliding)
+                {
+                    Vector2 jumpForce = new Vector2(isFacingRight ? -1 : 1, 1).normalized * jumpingPower;
+                    rb.AddForce(jumpForce, ForceMode2D.Impulse);
+                    isWallSliding = false;
+                }
+                else
+                {
+                    rb.AddForce(new Vector2(0, jumpingPower), ForceMode2D.Impulse);
+                }
             }
-  
-        }
-        else if (context.performed && isWallSliding)
-        {
-            isJumping = true;
-            rb.velocity = new Vector2(-transform.localScale.x * jumpingPower * 100f, jumpingPower);
-            isWallSliding = false;
         }
 
         if (context.canceled && rb.velocity.y > 0f)
         {
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.2f);
             coyoteTimeCounter = 0f;
+            wallJumpCoyoteTimeCounter = 0f;
         }
     }
 
-    //superjump
-    public void SuperJump(InputAction.CallbackContext context)
+
+
+//superjump
+public void SuperJump(InputAction.CallbackContext context)
     {
         if (context.started)
         {
             isChargingJump = true;
+            rb.velocity = Vector2.zero;
         }
         else if (context.canceled)
         {
@@ -204,11 +261,6 @@ public class PlayerScript : MonoBehaviour
     public void Move(InputAction.CallbackContext context)
     {
         horizontal = context.ReadValue<Vector2>().x;
-
-        if (isWallSliding)
-        {
-            isWallSliding = false;
-        }
     }
 
     //grounded
@@ -243,7 +295,10 @@ public class PlayerScript : MonoBehaviour
     {
         if (IsWalled() && !IsGrounded())
         {
-            isWallSliding = true;
+            if ((isFacingRight && horizontal > 0) || (!isFacingRight && horizontal < 0) || isWallSliding)
+            {
+                isWallSliding = true;
+            }
         }
         else
         {
@@ -255,6 +310,8 @@ public class PlayerScript : MonoBehaviour
             rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));
         }
     }
+
+
 
     private void FixedUpdate()
     {
@@ -277,7 +334,7 @@ public class PlayerScript : MonoBehaviour
         rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
 
     }
-   
+
     //flip
     private void Flip()
     {
@@ -295,6 +352,7 @@ public class PlayerScript : MonoBehaviour
             isFacingRight = !isFacingRight;
         }
     }
+
 
     //dash
     private IEnumerator Dash1()
